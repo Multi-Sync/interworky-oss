@@ -1,0 +1,22 @@
+{
+  "name": "interworky-oss",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Open-source, modular AI assistant platform",
+  "workspaces": [
+    "packages/*",
+    "plugins/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "node scripts/setup-env.js && turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "setup": "cp -n .env.example .env 2>/dev/null; node scripts/setup-env.js && npm install"
+  },
+  "packageManager": "npm@10.2.3",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "turbo": "^2.8.10"
+  }
+}

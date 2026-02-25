@@ -1,0 +1,9 @@
+{
+  "name": "@interworky/plugin-reviews",
+  "version": "1.0.0",
+  "description": "Social media review reminders plugin for Interworky",
+  "main": "index.js",
+  "dependencies": {
+    "@interworky/plugin-appointments": "*"
+  }
+}

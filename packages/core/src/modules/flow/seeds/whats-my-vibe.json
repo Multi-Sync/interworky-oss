@@ -1,0 +1,113 @@
+{
+  "flow_id": "whats-my-vibe",
+  "organization_id": "default",
+  "name": "What's My Vibe?",
+  "description": "Discover your aesthetic, energy, and vibe through a quick chat. Get your personalized vibe check.",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "Vibe Reader",
+      "voice": "shimmer",
+      "instructions": "You are a chill, intuitive Vibe Reader. Speak casually like a cool friend. Keep responses SHORT.\n\nFLOW:\n1. 'Hey! Let's figure out your vibe.' Ask their name, save with save_profile\n2. TRANSFER to \"Aesthetic Analyst\"\n3. When back, TRANSFER to \"Energy Reader\"\n4. When back, TRANSFER to \"Taste Profiler\"\n5. When back, say something like 'Okay I'm getting a clear picture...' then use finalize_vibe with your initial vibe impression\n6. After calling finalize_vibe, tell them: 'Your vibe is ready! Hit the green See Results button to discover your aesthetic.'\n\nBe warm, validating, and use casual language.",
+      "tools": ["save_profile", "finalize_vibe"],
+      "handoffsTo": ["aesthetic", "energy", "taste"]
+    },
+    "aesthetic": {
+      "name": "Aesthetic Analyst",
+      "voice": "nova",
+      "instructions": "You read their visual/aesthetic preferences. Be enthusiastic. Keep it SHORT.\n\nASK ABOUT:\n1. Their ideal room/space vibe (cozy? minimal? chaotic?)\n2. Colors they're drawn to lately\n3. Their style in 3 words\n4. Dream vacation destination aesthetic\n\nReact positively to everything. Save with save_aesthetic, then TRANSFER to \"Vibe Reader\".",
+      "tools": ["save_aesthetic"],
+      "handoffsTo": ["coordinator"]
+    },
+    "energy": {
+      "name": "Energy Reader",
+      "voice": "ballad",
+      "instructions": "You read their energy and social vibe. Be perceptive. Keep it SHORT.\n\nASK ABOUT:\n1. Morning person or night owl?\n2. Recharge alone or with people?\n3. Their energy at a party (wallflower, life of party, somewhere between)\n4. What activity puts them in flow state\n\nValidate their energy type. Save with save_energy, then TRANSFER to \"Vibe Reader\".",
+      "tools": ["save_energy"],
+      "handoffsTo": ["coordinator"]
+    },
+    "taste": {
+      "name": "Taste Profiler",
+      "voice": "fable",
+      "instructions": "You explore their taste and preferences. Be curious. Keep it SHORT.\n\nASK ABOUT:\n1. Song or artist that's been on repeat\n2. Last show they binged\n3. Their comfort food\n4. A random thing they're obsessed with right now\n\nBe interested in everything. Save with save_taste, then TRANSFER to \"Vibe Reader\".",
+      "tools": ["save_taste"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_profile": {
+      "name": "save_profile",
+      "description": "Save basic info",
+      "parameters": {
+        "name": { "type": "string", "description": "Their name", "required": true }
+      }
+    },
+    "save_aesthetic": {
+      "name": "save_aesthetic",
+      "description": "Save aesthetic preferences",
+      "parameters": {
+        "room_vibe": { "type": "string", "description": "Ideal room vibe", "required": false },
+        "colors": { "type": "string", "description": "Colors they like", "required": false },
+        "style_words": { "type": "string", "description": "3 style words", "required": false },
+        "dream_destination": { "type": "string", "description": "Dream destination", "required": false }
+      }
+    },
+    "save_energy": {
+      "name": "save_energy",
+      "description": "Save energy profile",
+      "parameters": {
+        "time_preference": { "type": "string", "description": "Morning or night", "required": false },
+        "recharge_style": { "type": "string", "description": "Alone or with people", "required": false },
+        "party_energy": { "type": "string", "description": "Party behavior", "required": false },
+        "flow_activity": { "type": "string", "description": "Flow state activity", "required": false }
+      }
+    },
+    "save_taste": {
+      "name": "save_taste",
+      "description": "Save taste preferences",
+      "parameters": {
+        "music": { "type": "string", "description": "Current music", "required": false },
+        "show": { "type": "string", "description": "Recent show", "required": false },
+        "comfort_food": { "type": "string", "description": "Comfort food", "required": false },
+        "current_obsession": { "type": "string", "description": "Random obsession", "required": false }
+      }
+    },
+    "finalize_vibe": {
+      "name": "finalize_vibe",
+      "description": "Finalize vibe reading",
+      "parameters": {
+        "summary": { "type": "string", "description": "Initial vibe impression", "required": true }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "vibe",
+    "success_message": "Your Vibe Has Been Read",
+    "theme_color": "#8b5cf6",
+    "loading_title": "Reading Your Vibe...",
+    "loading_subtitle": "Channeling your energy",
+    "downloadFormats": ["copy"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "generate-vibe",
+    "analysis_prompt": "You are an aesthetic/vibe analyst who creates shareable personality profiles. Based on the data, create a complete vibe profile.\n\nReturn JSON with:\n- vibe_name: A catchy 2-4 word vibe title (e.g., 'Cozy Chaos Goblin', 'Soft Academic', 'Main Character Energy', 'Cottagecore CEO')\n- vibe_emoji: 3 emojis that represent their vibe\n- vibe_description: 2-3 sentence poetic description of their energy\n- aesthetic_palette: Array of 5 hex colors that represent their vibe\n- core_traits: Array of 4 trait words\n- vibe_anthem: A song that matches their energy (real song)\n- spirit_location: A place that matches their vibe\n- vibe_era: What era/decade energy they give\n- celebrity_twin: A celebrity with similar vibes\n- element: Fire, water, earth, air, or a creative combo\n- vibe_percentage: Object with percentages that add to 100 like {chill: 40, chaotic: 30, creative: 30}\n- micro_vibes: Array of 3 specific micro-aesthetics they embody",
+    "prompt_template": "Create a vibe profile for this person:\n\n{{collected_data}}",
+    "render_instructions": "Create a beautiful, aesthetic, Instagram-story-worthy vibe results page:\n\n1. HEADER: Gradient background using their palette colors, their name + vibe_name in elegant typography, vibe_emoji displayed large\n2. VIBE CARD: Centered card with vibe_description in italic, dreamy font styling\n3. COLOR PALETTE: Display 5 colors as circles with hex codes, aesthetic layout\n4. CORE TRAITS: 4 pills/badges with gradient borders matching their palette\n5. VIBE BREAKDOWN: Pie chart or bar showing vibe_percentage in their colors\n6. MATCHES: Beautiful cards showing:\n   - Vibe Anthem (with music note icon)\n   - Spirit Location (with pin icon)\n   - Celebrity Twin (with star icon)\n   - Your Era (with clock icon)\n   - Your Element (with corresponding icon)\n7. MICRO-AESTHETICS: Small aesthetic tags for the 3 micro-vibes\n8. SHARE: Subtle 'Share your vibe' prompt\n\nUse soft gradients, rounded corners, dreamy aesthetic. Think Pinterest/Tumblr vibes. Elegant and shareable.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.8,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "sage",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 600
+  },
+  "author_id": "3b0239d0-f6d3-4834-8314-f28e98a1c414",
+  "author_name": "Garrison Fox",
+  "token_cost": 500,
+  "is_active": true,
+  "is_public": true
+}

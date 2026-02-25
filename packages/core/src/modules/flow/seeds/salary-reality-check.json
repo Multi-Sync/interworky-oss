@@ -1,0 +1,114 @@
+{
+  "flow_id": "salary-reality-check",
+  "organization_id": "default",
+  "name": "Salary Reality Check",
+  "description": "Find out if you're being underpaid. Get honest market data based on your skills, role, and location.",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "Salary Analyst",
+      "voice": "verse",
+      "instructions": "You are a direct, no-BS Salary Analyst. Keep responses SHORT and professional.\n\nFLOW:\n1. 'Let's find out what you should really be making.' Ask their name, save with save_profile\n2. TRANSFER to \"Role Specialist\"\n3. When back, TRANSFER to \"Skills Assessor\"\n4. When back, TRANSFER to \"Market Analyst\"\n5. When back, say 'Got it. Let me crunch the numbers...' then use finalize_analysis with a brief summary\n6. After calling finalize_analysis, tell them: 'Your analysis is ready. Click the green See Results button to find out if you're being underpaid.'\n\nBe supportive but honest. No sugarcoating.",
+      "tools": ["save_profile", "finalize_analysis"],
+      "handoffsTo": ["role", "skills", "market"]
+    },
+    "role": {
+      "name": "Role Specialist",
+      "voice": "onyx",
+      "instructions": "You gather role and company details. Be efficient. Keep it SHORT.\n\nASK ABOUT:\n1. Current job title (exact title matters)\n2. What industry/type of company (startup, enterprise, agency, etc.)\n3. How many years in this specific role\n4. Total years of professional experience\n5. Current salary (or range if uncomfortable) - remind them it's confidential\n\nSave with save_role, then TRANSFER to \"Salary Analyst\".",
+      "tools": ["save_role"],
+      "handoffsTo": ["coordinator"]
+    },
+    "skills": {
+      "name": "Skills Assessor",
+      "voice": "ash",
+      "instructions": "You assess their skills and responsibilities. Keep it SHORT.\n\nASK ABOUT:\n1. Top 3 technical skills or tools they use\n2. Do they manage people? How many?\n3. Any specialized certifications or degrees\n4. Biggest responsibility or scope (budget managed, team size, etc.)\n\nSave with save_skills, then TRANSFER to \"Salary Analyst\".",
+      "tools": ["save_skills"],
+      "handoffsTo": ["coordinator"]
+    },
+    "market": {
+      "name": "Market Analyst",
+      "voice": "alloy",
+      "instructions": "You gather location and market context. Keep it SHORT.\n\nASK ABOUT:\n1. City/metro area they work in (or remote - where based)\n2. Company size roughly (startup, mid-size, large corp)\n3. Is this role in high demand in their area?\n4. Have they received other offers or interviews recently? Ballpark numbers?\n\nSave with save_market, then TRANSFER to \"Salary Analyst\".",
+      "tools": ["save_market"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_profile": {
+      "name": "save_profile",
+      "description": "Save basic info",
+      "parameters": {
+        "name": { "type": "string", "description": "Their name", "required": true }
+      }
+    },
+    "save_role": {
+      "name": "save_role",
+      "description": "Save role details",
+      "parameters": {
+        "job_title": { "type": "string", "description": "Current title", "required": true },
+        "industry": { "type": "string", "description": "Industry/company type", "required": true },
+        "years_in_role": { "type": "number", "description": "Years in role", "required": false },
+        "total_experience": { "type": "number", "description": "Total years experience", "required": false },
+        "current_salary": { "type": "string", "description": "Current salary/range", "required": true }
+      }
+    },
+    "save_skills": {
+      "name": "save_skills",
+      "description": "Save skills and scope",
+      "parameters": {
+        "top_skills": { "type": "string", "description": "Top 3 skills", "required": true },
+        "manages_people": { "type": "string", "description": "Management scope", "required": false },
+        "certifications": { "type": "string", "description": "Certs/degrees", "required": false },
+        "biggest_responsibility": { "type": "string", "description": "Biggest responsibility", "required": false }
+      }
+    },
+    "save_market": {
+      "name": "save_market",
+      "description": "Save market context",
+      "parameters": {
+        "location": { "type": "string", "description": "City/area", "required": true },
+        "company_size": { "type": "string", "description": "Company size", "required": false },
+        "demand_level": { "type": "string", "description": "Role demand", "required": false },
+        "other_offers": { "type": "string", "description": "Other offers/interviews", "required": false }
+      }
+    },
+    "finalize_analysis": {
+      "name": "finalize_analysis",
+      "description": "Finalize salary analysis",
+      "parameters": {
+        "summary": { "type": "string", "description": "Analysis summary", "required": true }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "salary",
+    "success_message": "Your Salary Analysis is Ready",
+    "theme_color": "#22c55e",
+    "loading_title": "Analyzing Market Data...",
+    "loading_subtitle": "Comparing your profile against market rates",
+    "downloadFormats": ["copy"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "salary-analysis",
+    "analysis_prompt": "You are a compensation analyst with access to market salary data. Based on the profile, provide an honest salary assessment.\n\nUse realistic 2024 US market data. Be specific to their role, location, and experience. Don't inflate numbers.\n\nReturn JSON with:\n- verdict: One of 'UNDERPAID', 'FAIRLY_PAID', 'WELL_PAID', 'OVERPAID'\n- verdict_message: A direct one-liner about their situation\n- current_salary: Their stated salary as number\n- market_range: Object with {low, median, high, top_10_percent} for their role/location\n- your_percentile: What percentile their current salary is (e.g., 35 means they're at 35th percentile)\n- gap_analysis: Object with {amount_below_median, percentage_below_median} (or above if overpaid)\n- factors_helping: Array of 3 things boosting their value\n- factors_hurting: Array of 3 things that might limit salary\n- recommended_ask: What they should target in next negotiation\n- negotiation_tips: Array of 3 specific tips for their situation\n- action_plan: Array of 3 steps to increase earning potential",
+    "prompt_template": "Analyze this person's salary situation:\n\n{{collected_data}}",
+    "render_instructions": "Create a professional, data-driven salary analysis page:\n\n1. VERDICT BANNER: Large banner with verdict (UNDERPAID = red bg, FAIRLY_PAID = yellow, WELL_PAID/OVERPAID = green). Their name + verdict message\n2. SALARY GAUGE: Visual meter/gauge showing where their salary falls in the market range. Clear markers for low, median, high, top 10%. Arrow pointing to their position. Percentile displayed prominently.\n3. THE NUMBERS: Clean card showing:\n   - Your Salary: current_salary (large)\n   - Market Median: median from range\n   - Gap: amount_below/above median with percentage\n   - Recommended Target: recommended_ask in green\n4. MARKET RANGE: Horizontal bar chart showing the full range with their position marked\n5. YOUR VALUE: Two columns\n   - Left (green): factors_helping with checkmark icons\n   - Right (yellow): factors_hurting with warning icons\n6. NEGOTIATION TIPS: Numbered list with each tip, professional styling\n7. ACTION PLAN: Checklist style with 3 steps, each with checkbox icon\n\nUse professional colors: green (#22c55e) for positive, red (#ef4444) for underpaid signals, clean white cards, subtle shadows. Make the numbers BIG and scannable.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.6,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "sage",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 600
+  },
+  "author_id": "c56ea2d4-c587-48c1-af93-6264b66e0301",
+  "author_name": "Ahmed Zakaria",
+  "token_cost": 750,
+  "is_active": true,
+  "is_public": true
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@interworky/plugin-reminders",
+  "version": "1.0.0",
+  "description": "Post-visitation reminders plugin for Interworky",
+  "main": "index.js",
+  "dependencies": {
+    "@interworky/plugin-appointments": "*"
+  }
+}

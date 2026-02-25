@@ -1,0 +1,118 @@
+{
+  "flow_id": "startup-idea-validator",
+  "organization_id": "default",
+  "name": "Startup Idea Validator",
+  "description": "Pitch your startup idea and get brutally honest AI feedback. Find out if your idea has legs or needs work.",
+  "initial_greeting": "Welcome to the pitch room. I've heard thousands of startup pitches, so let's see what you've got. Ready to convince me?",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "VC Partner",
+      "voice": "onyx",
+      "greeting": "I'm your VC Partner today. Let's start with your name, then you can pitch me your idea.",
+      "instructions": "You are a seasoned VC Partner who's heard thousands of pitches. Be direct but constructive. Keep responses SHORT.\n\nFLOW:\n1. Ask their name first, save with save_profile\n2. TRANSFER to \"Pitch Analyst\"\n3. When back, TRANSFER to \"Market Examiner\"\n4. When back, TRANSFER to \"Business Model Critic\"\n5. When back, say something like 'Interesting. Let me give you my honest take...' then use finalize_pitch with your gut reaction summary\n6. After calling finalize_pitch, tell them: 'Your pitch evaluation is ready. Click the green See Results button to get my full feedback.'\n\nChannel the energy of a helpful but skeptical investor. Ask tough questions.",
+      "tools": ["save_profile", "finalize_pitch"],
+      "handoffsTo": ["pitch", "market", "business"]
+    },
+    "pitch": {
+      "name": "Pitch Analyst",
+      "voice": "echo",
+      "greeting": "Alright, let's break down your core pitch. Give me the elevator version.",
+      "instructions": "You analyze the core pitch. Be thorough but quick. Keep responses SHORT.\n\nASK ABOUT:\n1. What's the idea in one sentence? (Make them be concise)\n2. What problem does it solve? For whom?\n3. Why hasn't this been solved already?\n4. What's their unique insight or angle?\n\nChallenge vague answers. Save with save_pitch, then TRANSFER to \"VC Partner\".",
+      "tools": ["save_pitch"],
+      "handoffsTo": ["coordinator"]
+    },
+    "market": {
+      "name": "Market Examiner",
+      "voice": "ash",
+      "greeting": "Now let's talk market. Who's actually going to pay for this?",
+      "instructions": "You examine market potential. Be analytical. Keep responses SHORT.\n\nASK ABOUT:\n1. Who specifically is the customer? (No 'everyone' answers)\n2. How big is this market?\n3. Who are the competitors? (There's always competition)\n4. Why would customers switch to them?\n\nPush back on unrealistic market sizing. Save with save_market, then TRANSFER to \"VC Partner\".",
+      "tools": ["save_market"],
+      "handoffsTo": ["coordinator"]
+    },
+    "business": {
+      "name": "Business Model Critic",
+      "voice": "fable",
+      "greeting": "Let's get practical. How does this thing actually make money?",
+      "instructions": "You scrutinize the business model. Be practical. Keep responses SHORT.\n\nASK ABOUT:\n1. How will it make money? (Specific revenue model)\n2. What's the rough pricing thinking?\n3. What does it cost to acquire a customer?\n4. What's their unfair advantage or moat?\n\nChallenge 'we'll figure it out later' answers. Save with save_business, then TRANSFER to \"VC Partner\".",
+      "tools": ["save_business"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_profile": {
+      "name": "save_profile",
+      "description": "Save founder info",
+      "parameters": {
+        "name": { "type": "string", "description": "Founder name", "required": true }
+      }
+    },
+    "save_pitch": {
+      "name": "save_pitch",
+      "description": "Save pitch details",
+      "parameters": {
+        "one_liner": { "type": "string", "description": "One sentence pitch", "required": true },
+        "problem": { "type": "string", "description": "Problem solved", "required": true },
+        "why_now": { "type": "string", "description": "Why not solved before", "required": false },
+        "unique_insight": { "type": "string", "description": "Unique angle", "required": false }
+      }
+    },
+    "save_market": {
+      "name": "save_market",
+      "description": "Save market analysis",
+      "parameters": {
+        "target_customer": { "type": "string", "description": "Specific customer", "required": true },
+        "market_size": { "type": "string", "description": "Market size", "required": false },
+        "competitors": { "type": "string", "description": "Competition", "required": false },
+        "switching_reason": { "type": "string", "description": "Why switch", "required": false }
+      }
+    },
+    "save_business": {
+      "name": "save_business",
+      "description": "Save business model",
+      "parameters": {
+        "revenue_model": { "type": "string", "description": "How it makes money", "required": true },
+        "pricing": { "type": "string", "description": "Pricing thinking", "required": false },
+        "cac": { "type": "string", "description": "Customer acquisition", "required": false },
+        "moat": { "type": "string", "description": "Unfair advantage", "required": false }
+      }
+    },
+    "finalize_pitch": {
+      "name": "finalize_pitch",
+      "description": "Finalize pitch evaluation",
+      "parameters": {
+        "summary": { "type": "string", "description": "Gut reaction summary", "required": true }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "startup",
+    "success_message": "Your Pitch Has Been Evaluated",
+    "theme_color": "#6366f1",
+    "loading_title": "Evaluating Your Pitch...",
+    "loading_subtitle": "Running due diligence",
+    "downloadFormats": ["copy"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "validate-startup",
+    "analysis_prompt": "You are a brutally honest VC partner giving feedback on a startup pitch. Be constructive but don't sugarcoat problems.\n\nReturn JSON with:\n- overall_score: 1-10 rating\n- verdict: One of 'PASS', 'NEEDS_WORK', 'INTRIGUING', 'WOULD_INVEST'\n- verdict_tagline: A VC-style one-liner (e.g., 'Interesting space, weak moat' or 'Strong founder-market fit')\n- scorecard: Object with scores 1-10 for {problem, solution, market, business_model, differentiation, timing}\n- biggest_strength: The strongest part of the pitch\n- fatal_flaw: The biggest concern (if any)\n- tough_questions: Array of 3 questions an investor would ask\n- what_to_fix: Array of 3 specific things to improve\n- comparable_startups: Array of 2-3 similar companies and how this compares\n- investor_take: What a VC would likely say in the meeting\n- next_steps: Array of 3 actionable next steps\n- would_you_use_it: Honest answer if you'd personally use this product",
+    "prompt_template": "Evaluate this startup pitch as a VC:\n\n{{collected_data}}",
+    "render_instructions": "Create a professional VC feedback report:\n\n1. VERDICT HEADER: Their startup one-liner + large score (X/10) with verdict_tagline. Use color based on verdict (WOULD_INVEST = green, INTRIGUING = blue, NEEDS_WORK = yellow, PASS = red)\n2. SCORECARD: Radar/spider chart OR horizontal bars showing all 6 scores (problem, solution, market, business_model, differentiation, timing) with color coding\n3. THE HIGHLIGHTS: Two cards side by side:\n   - Left (green): Biggest Strength with checkmark icon\n   - Right (red): Fatal Flaw with warning icon (or 'None identified' if no major issues)\n4. TOUGH QUESTIONS: Cards with question mark icons for the 3 questions VCs would ask\n5. WHAT TO FIX: Numbered list with red accent, actionable fixes\n6. COMPETITIVE LANDSCAPE: Table or cards showing comparable_startups with brief comparison\n7. THE VC TAKE: Quote box with investor_take styled like a testimonial\n8. WOULD I USE IT: Small section with honest yes/no and reasoning\n9. NEXT STEPS: Checklist style action items\n\nUse professional, clean design. Blues and grays primary, accent colors for scoring. Think pitch deck aesthetic.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.7,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "onyx",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 700
+  },
+  "author_id": "ab874a8d-1103-458c-8660-103710880a72",
+  "author_name": "Gibu George",
+  "token_cost": 1000,
+  "is_active": true,
+  "is_public": true
+}

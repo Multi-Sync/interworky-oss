@@ -1,0 +1,114 @@
+{
+  "flow_id": "dating-profile-fixer",
+  "organization_id": "default",
+  "name": "Dating Profile Fixer",
+  "description": "Get an AI-written dating profile that actually sounds like you. No more 'I love to laugh' energy.",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "Profile Coach",
+      "voice": "nova",
+      "instructions": "You are a fun, supportive Dating Profile Coach. Be encouraging but honest. Keep responses SHORT.\n\nFLOW:\n1. 'Let's make you irresistible!' Ask their name and which apps they use, save with save_profile\n2. TRANSFER to \"Vibe Extractor\"\n3. When back, TRANSFER to \"Story Miner\"\n4. When back, TRANSFER to \"Dealbreaker Detective\"\n5. When back, say 'I've got everything I need to make you shine' then use finalize_profile with a brief summary of their dating personality\n6. After calling finalize_profile, tell them: 'Your new profile is ready! Click the green See Results button to get your glow-up.'\n\nBe like a supportive friend who wants them to succeed in dating.",
+      "tools": ["save_profile", "finalize_profile"],
+      "handoffsTo": ["vibe", "stories", "dealbreakers"]
+    },
+    "vibe": {
+      "name": "Vibe Extractor",
+      "voice": "shimmer",
+      "instructions": "You extract their personality and vibe. Be curious and fun. Keep it SHORT.\n\nASK ABOUT:\n1. How would their best friend describe them on a good day?\n2. What do they do on a perfect Saturday?\n3. What's their sense of humor like? (Dry, goofy, dark, witty?)\n4. What are they genuinely passionate about?\n\nGet the REAL them, not the 'interview' version. Save with save_vibe, then TRANSFER to \"Profile Coach\".",
+      "tools": ["save_vibe"],
+      "handoffsTo": ["coordinator"]
+    },
+    "stories": {
+      "name": "Story Miner",
+      "voice": "ballad",
+      "instructions": "You dig for interesting stories and details. Be conversational. Keep it SHORT.\n\nASK ABOUT:\n1. What's something unusual or unexpected about them?\n2. A recent adventure or something they're proud of?\n3. Their hot take or unpopular opinion\n4. What are they a nerd about? (Everyone's a nerd about something)\n\nFind the conversation starters. Save with save_stories, then TRANSFER to \"Profile Coach\".",
+      "tools": ["save_stories"],
+      "handoffsTo": ["coordinator"]
+    },
+    "dealbreakers": {
+      "name": "Dealbreaker Detective",
+      "voice": "coral",
+      "instructions": "You figure out what they want. Be direct but light. Keep it SHORT.\n\nASK ABOUT:\n1. What are they looking for? (Casual, serious, seeing what happens?)\n2. What kind of person do they click with?\n3. Any dealbreakers? (Be honest, we won't judge)\n4. What's the ideal first date for them?\n\nGet the honest answers. Save with save_dealbreakers, then TRANSFER to \"Profile Coach\".",
+      "tools": ["save_dealbreakers"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_profile": {
+      "name": "save_profile",
+      "description": "Save basic info",
+      "parameters": {
+        "name": { "type": "string", "description": "Their name", "required": true },
+        "apps": { "type": "string", "description": "Dating apps used", "required": false }
+      }
+    },
+    "save_vibe": {
+      "name": "save_vibe",
+      "description": "Save personality vibe",
+      "parameters": {
+        "friend_description": { "type": "string", "description": "How friends describe them", "required": false },
+        "perfect_saturday": { "type": "string", "description": "Perfect Saturday", "required": false },
+        "humor_style": { "type": "string", "description": "Humor type", "required": false },
+        "passions": { "type": "string", "description": "Genuine passions", "required": false }
+      }
+    },
+    "save_stories": {
+      "name": "save_stories",
+      "description": "Save interesting details",
+      "parameters": {
+        "unexpected_thing": { "type": "string", "description": "Unexpected fact", "required": false },
+        "recent_adventure": { "type": "string", "description": "Adventure/proud moment", "required": false },
+        "hot_take": { "type": "string", "description": "Hot take", "required": false },
+        "nerd_topic": { "type": "string", "description": "What they nerd about", "required": false }
+      }
+    },
+    "save_dealbreakers": {
+      "name": "save_dealbreakers",
+      "description": "Save preferences",
+      "parameters": {
+        "looking_for": { "type": "string", "description": "What they want", "required": true },
+        "ideal_person": { "type": "string", "description": "Who they click with", "required": false },
+        "dealbreakers": { "type": "string", "description": "Dealbreakers", "required": false },
+        "ideal_first_date": { "type": "string", "description": "Ideal first date", "required": false }
+      }
+    },
+    "finalize_profile": {
+      "name": "finalize_profile",
+      "description": "Finalize dating profile",
+      "parameters": {
+        "summary": { "type": "string", "description": "Dating personality summary", "required": true }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "dating",
+    "success_message": "Your New Profile is Ready!",
+    "theme_color": "#ec4899",
+    "loading_title": "Crafting Your Profile...",
+    "loading_subtitle": "Making you swipe-right worthy",
+    "downloadFormats": ["copy"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "fix-dating-profile",
+    "analysis_prompt": "You are an expert dating profile writer who creates authentic, engaging profiles that get matches. Based on the person's info, create a complete dating profile package.\n\nRules:\n- Sound like them, not a robot\n- Be specific and vivid\n- Include hooks that invite conversation\n- Show personality, not just list traits\n- Avoid cliches like 'I love to laugh' or 'looking for my partner in crime'\n\nReturn JSON with:\n- main_bio: The complete bio (150-200 words, with natural paragraph breaks)\n- short_bio: A punchy alternative (under 50 words)\n- opening_line: A great first line that hooks attention\n- prompt_answers: Array of 3 objects with {prompt, answer} for dating app prompts\n- photo_tips: Array of 3 specific photo suggestions for them\n- conversation_starters: Array of 3 topics matches could message about\n- red_flags_removed: Array of any cliches or red flags they should avoid\n- profile_vibe: 2-3 words describing the overall vibe\n- match_magnet: What will make people swipe right\n- improvement_tips: Array of 3 additional tips beyond the bio",
+    "prompt_template": "Create a dating profile for this person:\n\n{{collected_data}}",
+    "render_instructions": "Create a fun, dating-app-inspired results page:\n\n1. HEADER: Their name + heart icon + 'Profile Glow-Up Complete' in pink (#ec4899), playful styling\n2. PROFILE VIBE: Badge showing the profile_vibe with matching colors\n3. MAIN BIO: Large, beautiful card showing the main_bio with dating-app-like styling (think Hinge/Bumble aesthetic). Add a 'Copy' button\n4. SHORT BIO: Smaller card with the punchy alternative for apps with character limits\n5. HOOK LINE: Highlighted quote box with the opening_line - 'Your Opening Line'\n6. PROMPT ANSWERS: Cards styled like dating app prompts (gray header with prompt, answer below)\n7. PHOTO TIPS: Numbered list with camera icons, each tip specific to them\n8. CONVERSATION MAGNETS: Pills/tags showing topics that will get messages\n9. WHAT MAKES YOU SWIPE-RIGHT: Card highlighting match_magnet\n10. AVOID THESE: Red pills showing red_flags_removed with X icons\n11. BONUS TIPS: Clean list of improvement_tips\n\nUse pink (#ec4899), soft gradients, rounded corners, hearts as accents. Make it feel like a dating app. Fun and shareable.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.8,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "sage",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 600
+  },
+  "author_id": "e9d9ccfb-5870-439d-b4bf-1c39672a3b52",
+  "author_name": "Sabry",
+  "token_cost": 1000,
+  "is_active": true,
+  "is_public": true
+}

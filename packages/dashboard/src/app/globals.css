@@ -1,0 +1,255 @@
+/* Font loaded via next/font in layout.js for better performance */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@plugin "@tailwindcss/typography";
+
+@layer base {
+  body {
+    font-family: var(--font-nunito-sans), var(--font-inter), system-ui, sans-serif;
+  }
+
+  * {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  input[type='color']::-webkit-color-swatch {
+    border: none !important;
+    border-radius: 9999px;
+    padding: 12px 2px;
+  }
+  input[type='color']::-moz-color-swatch {
+    border: none !important;
+    border-radius: 9999px;
+    padding: 12px 2px;
+  }
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Adjust as needed */
+}
+
+.desktopImage {
+  display: none;
+}
+
+.mobileImage {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover; /* Adjust the object-fit property */
+}
+.react-international-phone-country-selector-button__button-content {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+/* Ensure the phone country dropdown overlays buttons inside modals */
+.react-international-phone-country-selector-dropdown {
+  z-index: 999999 !important;
+}
+.react-international-phone-country-selector {
+  position: relative;
+  z-index: 50;
+}
+@keyframes textWave {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-8px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  #customize-colors {
+    padding: 12px 2px;
+  }
+  input[type='color'] {
+    width: 50px;
+    height: 52px;
+  }
+}
+@media (min-width: 768px) {
+  .desktopImage {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .mobileImage {
+    display: none;
+  }
+
+  .desktopImage .image {
+    object-fit: contain; /* Show the full image on desktop */
+  }
+}
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll linear infinite;
+}
+
+/* Custom scrollbar styles */
+.assistant-knowledge-scroll-bar {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #525252 transparent; /* Gray color */
+}
+
+.assistant-knowledge-scroll-bar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.assistant-knowledge-scroll-bar::-webkit-scrollbar-thumb {
+  background-color: #525252; /* Gray color */
+  border-radius: 4px;
+}
+
+.assistant-knowledge-scroll-bar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Enhanced iOS touch optimization */
+button,
+a,
+[role='button'],
+.clickable,
+.nav-link,
+.feature-card,
+.pricing-card {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Fix for iOS sticky hover states and provide touch feedback */
+@media (hover: hover) {
+  button:hover,
+  a:hover,
+  [role='button']:hover,
+  .nav-link:hover {
+    opacity: 0.8;
+  }
+}
+
+/* Active state for touch feedback */
+button:active,
+a:active,
+[role='button']:active,
+.nav-link:active {
+  opacity: 0.6;
+  transform: scale(0.98);
+}
+
+/* Prevent text selection during touch */
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Fix for iOS overflow issues */
+.overflow-fix {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Ensure buttons are clickable when inside transform containers */
+.transform-container {
+  transform-style: flat;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Add iOS touch optimization */
+button,
+a,
+[role='button'],
+.clickable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#react-joyride-step-0 span {
+  z-index: 40 !important;
+}
+
+/* Hero section performance animations - CSS instead of framer-motion */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes upDown {
+  0%,
+  100% {
+    transform: translateY(0) translateZ(0);
+  }
+  50% {
+    transform: translateY(-20px) translateZ(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out 0.4s both;
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+/* Hero skeleton loading state */
+.hero-skeleton {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

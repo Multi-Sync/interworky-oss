@@ -1,0 +1,6 @@
+{
+  "name": "@interworky/plugin-feedback",
+  "version": "1.0.0",
+  "description": "Negative feedback management plugin for Interworky",
+  "main": "index.js"
+}

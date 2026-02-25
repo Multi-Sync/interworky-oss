@@ -1,0 +1,9 @@
+{
+  "name": "@interworky/plugin-appointments",
+  "version": "1.0.0",
+  "description": "Appointments management plugin for Interworky",
+  "main": "index.js",
+  "dependencies": {
+    "@interworky/providers": "*"
+  }
+}

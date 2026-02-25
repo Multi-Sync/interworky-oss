@@ -1,0 +1,222 @@
+{
+  "flow_id": "resume-builder",
+  "organization_id": "default",
+  "name": "AI Resume Builder",
+  "description": "Build your professional resume through a natural voice conversation. Our AI will guide you through education, work experience, and skills.",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "Resume Coordinator",
+      "voice": "ash",
+      "instructions": "You are a friendly Resume Building Coordinator. Keep responses concise for voice.\n\nFLOW:\n1. Greet user briefly, get their name and email using save_contact_info\n2. After saving contact info, say \"Great! Let me transfer you to our Education Specialist.\" then TRANSFER to \"Education Specialist\"\n3. When you receive control back, say \"Excellent! Now transferring you to our Work Experience Specialist.\" then TRANSFER to \"Work Experience Specialist\"\n4. When you receive control back, say \"Almost done! Transferring you to our Skills Specialist.\" then TRANSFER to \"Skills Specialist\"\n5. When you receive control back, ask for a 1-sentence professional summary, then use generate_resume\n6. After calling generate_resume, tell them: 'Your resume is ready! Click the green See Results button to see your professional resume.'\n\nCRITICAL: You MUST transfer to specialists in order. After collecting contact info, immediately transfer to Education Specialist.\n\nYou can transfer to these agents:\n- \"Education Specialist\" - for education/degrees\n- \"Work Experience Specialist\" - for jobs/employment\n- \"Skills Specialist\" - for skills/certifications",
+      "tools": ["save_contact_info", "generate_resume"],
+      "handoffsTo": ["education", "work", "skills"]
+    },
+    "education": {
+      "name": "Education Specialist",
+      "voice": "coral",
+      "instructions": "You are an Education Specialist collecting education for a resume. Keep responses concise for voice.\n\nTASK:\n1. Ask about their highest degree\n2. Get school name, major, graduation year\n3. Save using save_education tool\n4. Ask if they have more education to add\n5. When done, say \"Great, I've got your education. Let me transfer you back to the coordinator.\" then TRANSFER to \"Resume Coordinator\"\n\nCRITICAL: After collecting all education entries, you MUST transfer back to \"Resume Coordinator\".\n\nYou can transfer to:\n- \"Resume Coordinator\" - when education section is complete",
+      "tools": ["save_education"],
+      "handoffsTo": ["coordinator"]
+    },
+    "work": {
+      "name": "Work Experience Specialist",
+      "voice": "ballad",
+      "instructions": "You are a Work Experience Specialist collecting job history for a resume. Keep responses concise for voice.\n\nTASK:\n1. Ask about their current/most recent job\n2. Get company, title, dates, 2-3 responsibilities\n3. Save using save_work_experience tool\n4. Ask if they have more jobs to add (2-3 recent ones is enough)\n5. When done, say \"Perfect, I've captured your work history. Transferring you back to the coordinator.\" then TRANSFER to \"Resume Coordinator\"\n\nCRITICAL: After collecting work experience, you MUST transfer back to \"Resume Coordinator\".\n\nYou can transfer to:\n- \"Resume Coordinator\" - when work section is complete",
+      "tools": ["save_work_experience"],
+      "handoffsTo": ["coordinator"]
+    },
+    "skills": {
+      "name": "Skills Specialist",
+      "voice": "sage",
+      "instructions": "You are a Skills Specialist collecting skills for a resume. Keep responses concise for voice.\n\nTASK:\n1. Ask about technical skills (software, tools, languages)\n2. Ask about soft skills (leadership, communication)\n3. Ask about certifications\n4. Save using save_skills tool\n5. When done, say \"Excellent, I've got your skills. Transferring you back to the coordinator to finish up.\" then TRANSFER to \"Resume Coordinator\"\n\nCRITICAL: After collecting skills, you MUST transfer back to \"Resume Coordinator\".\n\nYou can transfer to:\n- \"Resume Coordinator\" - when skills section is complete",
+      "tools": ["save_skills"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_contact_info": {
+      "name": "save_contact_info",
+      "description": "Save the user's contact information including name, email, phone, and location",
+      "parameters": {
+        "fullName": {
+          "type": "string",
+          "description": "The user's full name",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address",
+          "required": true
+        },
+        "phone": {
+          "type": "string",
+          "description": "The user's phone number",
+          "required": false
+        },
+        "location": {
+          "type": "string",
+          "description": "The user's city and state/country",
+          "required": false
+        }
+      }
+    },
+    "save_education": {
+      "name": "save_education",
+      "description": "Save an education entry collected from the user",
+      "parameters": {
+        "degree": {
+          "type": "string",
+          "description": "Degree name (e.g., Bachelor of Science, MBA)",
+          "required": true
+        },
+        "institution": {
+          "type": "string",
+          "description": "School or University name",
+          "required": true
+        },
+        "field": {
+          "type": "string",
+          "description": "Field of study or major",
+          "required": true
+        },
+        "graduationYear": {
+          "type": "number",
+          "description": "Graduation year or expected graduation year",
+          "required": false
+        },
+        "gpa": {
+          "type": "string",
+          "description": "GPA if notable (3.5+)",
+          "required": false
+        }
+      }
+    },
+    "save_work_experience": {
+      "name": "save_work_experience",
+      "description": "Save a work experience entry",
+      "parameters": {
+        "title": {
+          "type": "string",
+          "description": "Job title",
+          "required": true
+        },
+        "company": {
+          "type": "string",
+          "description": "Company name",
+          "required": true
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Start date (Month Year format)",
+          "required": true
+        },
+        "endDate": {
+          "type": "string",
+          "description": "End date (Month Year format) or 'Present'",
+          "required": false
+        },
+        "responsibilities": {
+          "type": "string",
+          "description": "Key responsibilities (comma separated)",
+          "required": false
+        }
+      }
+    },
+    "save_skills": {
+      "name": "save_skills",
+      "description": "Save skills to the resume",
+      "parameters": {
+        "technical": {
+          "type": "string",
+          "description": "Technical skills (comma separated)",
+          "required": false
+        },
+        "soft": {
+          "type": "string",
+          "description": "Soft skills (comma separated)",
+          "required": false
+        },
+        "certifications": {
+          "type": "string",
+          "description": "Professional certifications (comma separated)",
+          "required": false
+        },
+        "languages": {
+          "type": "string",
+          "description": "Languages with proficiency (comma separated)",
+          "required": false
+        }
+      }
+    },
+    "generate_resume": {
+      "name": "generate_resume",
+      "description": "Generate the final resume. Call this after all sections are complete.",
+      "parameters": {
+        "summary": {
+          "type": "string",
+          "description": "Professional summary (1-2 sentences)",
+          "required": true
+        }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "resume",
+    "success_message": "Your Resume is Ready!",
+    "theme_color": "#3b82f6",
+    "loading_title": "Building Your Resume...",
+    "loading_subtitle": "Formatting your professional experience",
+    "blocks": [
+      {
+        "type": "header",
+        "title": "Contact Information",
+        "dataKey": "save_contact_info",
+        "fields": ["fullName", "email", "phone", "location"]
+      },
+      {
+        "type": "text",
+        "title": "Professional Summary",
+        "dataKey": "generate_resume"
+      },
+      {
+        "type": "section",
+        "title": "Education",
+        "dataKey": "save_education"
+      },
+      {
+        "type": "section",
+        "title": "Work Experience",
+        "dataKey": "save_work_experience"
+      },
+      {
+        "type": "list",
+        "title": "Skills",
+        "dataKey": "save_skills"
+      }
+    ],
+    "downloadFormats": ["pdf", "doc", "copy", "json"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "resume-generate",
+    "analysis_prompt": "You are a professional resume writer and career consultant. Your task is to transform the collected user data into a polished, ATS-friendly professional resume.\n\nAnalyze the provided data and:\n1. Enhance job descriptions with action verbs and quantifiable achievements where possible\n2. Organize skills into logical categories\n3. Ensure consistent formatting and professional language\n4. Create a compelling professional summary based on the user's experience\n5. Format dates consistently\n\nReturn JSON with these sections:\n- contact: { fullName, email, phone, location }\n- summary: Enhanced professional summary (2-3 sentences)\n- education: Array of { degree, institution, field, graduationYear, gpa }\n- experience: Array of { title, company, startDate, endDate, responsibilities: [] }\n- skills: { technical: [], soft: [], certifications: [], languages: [] }",
+    "prompt_template": "Generate a professional resume from this collected data:\n\n{{collected_data}}",
+    "render_instructions": "Create a clean, professional resume layout with these sections:\n\n1. HEADER: Full name prominently displayed with contact info (email, phone, location) in a row below. Use dark text (#1f2937) on clean white background.\n\n2. PROFESSIONAL SUMMARY: 2-3 sentence summary in a subtle gray box with left border accent (#3b82f6).\n\n3. WORK EXPERIENCE: Each job shows company name, title (bold), and dates aligned right. Responsibilities as bullet points with action verbs. Add subtle separator between jobs.\n\n4. EDUCATION: Degree and field prominent, institution name, graduation year. GPA if notable.\n\n5. SKILLS: Organized grid layout - Technical skills (tagged in blue), Soft skills (tagged in green), Certifications (with certificate icon), Languages (with proficiency level).\n\nUse professional fonts (system fonts), clean spacing, subtle shadows on cards, and a consistent blue (#3b82f6) accent color. Make it look like a modern, recruiter-friendly resume template.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.4,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "sage",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 500
+  },
+  "author_id": "ab874a8d-1103-458c-8660-103710880a72",
+  "author_name": "Gibu George",
+  "token_cost": 1500,
+  "is_active": true,
+  "is_public": true
+}

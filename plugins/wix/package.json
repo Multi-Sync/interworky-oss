@@ -1,0 +1,6 @@
+{
+  "name": "@interworky/plugin-wix",
+  "version": "1.0.0",
+  "description": "Wix integration plugin for Interworky",
+  "main": "index.js"
+}

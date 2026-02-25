@@ -1,0 +1,115 @@
+{
+  "flow_id": "career-plan",
+  "organization_id": "default",
+  "name": "AI Career Advisor",
+  "description": "Discover your ideal career path through a voice conversation. We'll analyze your background, skills, and interests to find opportunities that match you.",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "Career Advisor",
+      "voice": "coral",
+      "instructions": "You are a friendly Career Advisor. Keep responses concise for voice.\n\nFLOW:\n1. Greet user warmly, ask their name and save with save_profile\n2. TRANSFER to \"Education Specialist\"\n3. When back, TRANSFER to \"Experience Specialist\"\n4. When back, TRANSFER to \"Personality Specialist\"\n5. When back, thank them and use finalize_profile with a brief summary\n6. After calling finalize_profile, tell them: 'Your career plan is ready! Click the green See Results button to discover your opportunities.'\n\nYou can transfer to:\n- \"Education Specialist\"\n- \"Experience Specialist\"\n- \"Personality Specialist\"",
+      "tools": ["save_profile", "finalize_profile"],
+      "handoffsTo": ["education", "experience", "personality"]
+    },
+    "education": {
+      "name": "Education Specialist",
+      "voice": "sage",
+      "instructions": "You collect education background. Keep responses concise.\n\nASK ABOUT:\n1. Highest education level (degree, field)\n2. Any certifications or courses\n3. Skills learned\n\nSave with save_education, then TRANSFER to \"Career Advisor\".",
+      "tools": ["save_education"],
+      "handoffsTo": ["coordinator"]
+    },
+    "experience": {
+      "name": "Experience Specialist",
+      "voice": "nova",
+      "instructions": "You collect work experience. Keep responses concise.\n\nASK ABOUT:\n1. Current or most recent job (title, industry)\n2. Years of experience\n3. Key achievements or projects\n4. What they enjoyed most/least\n\nSave with save_experience, then TRANSFER to \"Career Advisor\".",
+      "tools": ["save_experience"],
+      "handoffsTo": ["coordinator"]
+    },
+    "personality": {
+      "name": "Personality Specialist",
+      "voice": "shimmer",
+      "instructions": "You explore interests and personality. Keep responses concise.\n\nASK ABOUT:\n1. Hobbies and passions outside work\n2. Work environment preference (remote/office, team/solo)\n3. What motivates them (money, impact, creativity, stability)\n4. Dream job or industry they're curious about\n\nSave with save_personality, then TRANSFER to \"Career Advisor\".",
+      "tools": ["save_personality"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_profile": {
+      "name": "save_profile",
+      "description": "Save basic profile info",
+      "parameters": {
+        "name": { "type": "string", "description": "User's name", "required": true },
+        "location": { "type": "string", "description": "User's location", "required": false }
+      }
+    },
+    "save_education": {
+      "name": "save_education",
+      "description": "Save education background",
+      "parameters": {
+        "highest_degree": { "type": "string", "description": "Highest degree", "required": true },
+        "certifications": { "type": "string", "description": "Certifications", "required": false },
+        "skills": { "type": "string", "description": "Skills from education", "required": false }
+      }
+    },
+    "save_experience": {
+      "name": "save_experience",
+      "description": "Save work experience",
+      "parameters": {
+        "current_role": { "type": "string", "description": "Current job title", "required": true },
+        "industry": { "type": "string", "description": "Industry", "required": true },
+        "years_experience": { "type": "number", "description": "Years of experience", "required": false },
+        "achievements": { "type": "string", "description": "Key achievements", "required": false },
+        "enjoyed": { "type": "string", "description": "What they enjoyed", "required": false },
+        "disliked": { "type": "string", "description": "What they didn't enjoy", "required": false }
+      }
+    },
+    "save_personality": {
+      "name": "save_personality",
+      "description": "Save interests and personality",
+      "parameters": {
+        "hobbies": { "type": "string", "description": "Hobbies", "required": false },
+        "work_preference": { "type": "string", "description": "Work style preference", "required": false },
+        "motivators": { "type": "string", "description": "What motivates them", "required": false },
+        "dream_industry": { "type": "string", "description": "Dream industry", "required": false }
+      }
+    },
+    "finalize_profile": {
+      "name": "finalize_profile",
+      "description": "Finalize with summary",
+      "parameters": {
+        "summary": { "type": "string", "description": "Profile summary", "required": true }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "career",
+    "success_message": "Your Career Plan is Ready!",
+    "theme_color": "#6366f1",
+    "loading_title": "Analyzing Your Profile...",
+    "loading_subtitle": "Searching for opportunities and generating recommendations",
+    "downloadFormats": ["copy"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "career-search",
+    "analysis_prompt": "You are a career advisor AI. Based on the user's education, experience, and personality, provide personalized career recommendations.\n\nReturn JSON with:\n- job_opportunities: Array of 5 objects with {title, company_type, why_good_fit}\n- career_paths: Array of 3 objects with {path, steps, timeline}\n- skills_to_develop: Array of 5 skill strings\n- industries: Array of 3 objects with {name, growth_reason}\n- action_items: Array of 3 immediate next steps",
+    "prompt_template": "Analyze this user profile and provide career recommendations:\n\n{{collected_data}}",
+    "render_instructions": "Create a professional career plan results page:\n\n1. HEADER: User's name with 'Your Career Plan' title in indigo (#6366f1), show location if available\n2. PROFILE SUMMARY: Italicized quote box with light gray background showing the profile summary\n3. USER BACKGROUND: Cards showing education, experience, and interests\n4. AI DIVIDER: Purple/indigo banner saying 'AI-Generated Career Recommendations'\n5. JOB OPPORTUNITIES: Cards with indigo left border, job title prominent, company type in gray, why_good_fit as description\n6. CAREER PATHS: Cards with green (#10b981) left border, path name, steps, timeline\n7. SKILLS TO DEVELOP: Colorful pill badges in amber/yellow (#fef3c7 bg, #92400e text)\n8. GROWING INDUSTRIES: List with industry name bold and growth_reason as description\n9. NEXT STEPS: Numbered action items in checklist style\n\nUse modern design, clean typography, card-based layout with subtle shadows.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.7,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "sage",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 600
+  },
+  "author_id": "c56ea2d4-c587-48c1-af93-6264b66e0301",
+  "author_name": "Ahmed Zakaria",
+  "token_cost": 750,
+  "is_active": true,
+  "is_public": true
+}

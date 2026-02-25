@@ -1,0 +1,6 @@
+{
+  "name": "@interworky/plugin-testimonials",
+  "version": "1.0.0",
+  "description": "Testimonials management plugin for Interworky",
+  "main": "index.js"
+}

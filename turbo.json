@@ -1,0 +1,36 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "MONGODB_URL",
+    "JWT_SECRET",
+    "AI_API_KEY",
+    "AI_BASE_URL",
+    "AI_MODEL",
+    "AI_FAST_MODEL",
+    "AI_REALTIME_MODEL",
+    "EMAIL_PROVIDER",
+    "SMS_PROVIDER",
+    "STORAGE_PROVIDER",
+    "NODE_ENV",
+    "NODE_PUBLIC_API_URL",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_STRAPI_URL",
+    "AUTH_SECRET",
+    "AUTH_GOOGLE_ID",
+    "AUTH_GOOGLE_SECRET"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "test": {
+      "dependsOn": ["build"]
+    }
+  }
+}

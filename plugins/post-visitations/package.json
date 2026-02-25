@@ -1,0 +1,10 @@
+{
+  "name": "@interworky/plugin-post-visitations",
+  "version": "1.0.0",
+  "description": "Post-visitation management plugin for Interworky",
+  "main": "index.js",
+  "dependencies": {
+    "@interworky/plugin-appointments": "*",
+    "@interworky/plugin-patients": "*"
+  }
+}

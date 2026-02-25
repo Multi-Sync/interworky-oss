@@ -1,0 +1,6 @@
+{
+  "name": "@interworky/plugin-patients",
+  "version": "1.0.0",
+  "description": "Patient management plugin for Interworky",
+  "main": "index.js"
+}

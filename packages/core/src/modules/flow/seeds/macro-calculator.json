@@ -1,0 +1,116 @@
+{
+  "flow_id": "macro-calculator",
+  "organization_id": "default",
+  "name": "AI Macro Calculator",
+  "description": "Get personalized macro recommendations through a quick voice conversation. We'll calculate your ideal protein, carbs, and fats based on your body, goals, and lifestyle.",
+  "start_agent": "coordinator",
+  "agents": {
+    "coordinator": {
+      "name": "Nutrition Coach",
+      "voice": "sage",
+      "instructions": "You are a friendly Nutrition Coach. Keep responses concise for voice.\n\nFLOW:\n1. Greet user warmly, ask their name and save with save_profile\n2. TRANSFER to \"Body Metrics Specialist\"\n3. When back, TRANSFER to \"Goals Specialist\"\n4. When back, TRANSFER to \"Lifestyle Specialist\"\n5. When back, thank them and use finalize_profile with a brief summary of their fitness profile\n6. After calling finalize_profile, tell them: 'Your macros are ready! Click the green See Results button to get your personalized plan.'\n\nYou can transfer to:\n- \"Body Metrics Specialist\"\n- \"Goals Specialist\"\n- \"Lifestyle Specialist\"",
+      "tools": ["save_profile", "finalize_profile"],
+      "handoffsTo": ["body_metrics", "goals", "lifestyle"]
+    },
+    "body_metrics": {
+      "name": "Body Metrics Specialist",
+      "voice": "alloy",
+      "instructions": "You collect body measurements. Keep responses concise and friendly.\n\nASK ABOUT:\n1. Current weight (in lbs or kg - clarify which)\n2. Height (in feet/inches or cm)\n3. Age\n4. Biological sex (for accurate calculations)\n\nBe supportive and non-judgmental. Save with save_body_metrics, then TRANSFER to \"Nutrition Coach\".",
+      "tools": ["save_body_metrics"],
+      "handoffsTo": ["coordinator"]
+    },
+    "goals": {
+      "name": "Goals Specialist",
+      "voice": "coral",
+      "instructions": "You collect fitness goals. Keep responses concise and motivating.\n\nASK ABOUT:\n1. Goal weight (or if they want to maintain)\n2. Primary goal: lose fat, build muscle, maintain, or recomp (lose fat + build muscle)\n3. How aggressive they want to be (slow/steady vs fast results)\n4. Any deadline or timeline they have in mind\n\nBe encouraging! Save with save_goals, then TRANSFER to \"Nutrition Coach\".",
+      "tools": ["save_goals"],
+      "handoffsTo": ["coordinator"]
+    },
+    "lifestyle": {
+      "name": "Lifestyle Specialist",
+      "voice": "verse",
+      "instructions": "You collect activity and lifestyle info. Keep responses concise.\n\nASK ABOUT:\n1. Daily activity level at work/home (sedentary, lightly active, active, very active)\n2. How many days per week they exercise\n3. Type of exercise (weight training, cardio, sports, mixed)\n4. Any dietary restrictions or preferences (vegan, keto, allergies, etc.)\n\nSave with save_lifestyle, then TRANSFER to \"Nutrition Coach\".",
+      "tools": ["save_lifestyle"],
+      "handoffsTo": ["coordinator"]
+    }
+  },
+  "tools": {
+    "save_profile": {
+      "name": "save_profile",
+      "description": "Save basic profile info",
+      "parameters": {
+        "name": { "type": "string", "description": "User's name", "required": true }
+      }
+    },
+    "save_body_metrics": {
+      "name": "save_body_metrics",
+      "description": "Save body measurements",
+      "parameters": {
+        "weight": { "type": "number", "description": "Current weight in lbs", "required": true },
+        "weight_unit": { "type": "string", "description": "Weight unit: lbs or kg", "required": false },
+        "height_feet": { "type": "number", "description": "Height in feet", "required": false },
+        "height_inches": { "type": "number", "description": "Additional inches", "required": false },
+        "height_cm": { "type": "number", "description": "Height in cm (alternative)", "required": false },
+        "age": { "type": "number", "description": "Age in years", "required": true },
+        "sex": { "type": "string", "description": "Biological sex: male or female", "required": true }
+      }
+    },
+    "save_goals": {
+      "name": "save_goals",
+      "description": "Save fitness goals",
+      "parameters": {
+        "goal_weight": { "type": "number", "description": "Target weight", "required": false },
+        "primary_goal": { "type": "string", "description": "Goal: lose_fat, build_muscle, maintain, recomp", "required": true },
+        "pace": { "type": "string", "description": "Pace: slow, moderate, aggressive", "required": false },
+        "timeline": { "type": "string", "description": "Timeline or deadline", "required": false }
+      }
+    },
+    "save_lifestyle": {
+      "name": "save_lifestyle",
+      "description": "Save activity and lifestyle info",
+      "parameters": {
+        "activity_level": { "type": "string", "description": "Daily activity level", "required": true },
+        "workout_days": { "type": "number", "description": "Workout days per week", "required": true },
+        "workout_type": { "type": "string", "description": "Type: weights, cardio, sports, mixed", "required": false },
+        "dietary_restrictions": { "type": "string", "description": "Dietary restrictions", "required": false }
+      }
+    },
+    "finalize_profile": {
+      "name": "finalize_profile",
+      "description": "Finalize with summary",
+      "parameters": {
+        "summary": { "type": "string", "description": "Brief profile summary", "required": true }
+      }
+    }
+  },
+  "output_schema": {
+    "type": "macro",
+    "success_message": "Your Personalized Macro Plan is Ready!",
+    "theme_color": "#10b981",
+    "loading_title": "Calculating Your Macros...",
+    "loading_subtitle": "Analyzing your body metrics, goals, and lifestyle",
+    "downloadFormats": ["copy"]
+  },
+  "completion_action": {
+    "type": "dual-agent",
+    "action": "macro-calculate",
+    "analysis_prompt": "You are a certified nutritionist and fitness expert. Calculate personalized macros using the Mifflin-St Jeor formula for BMR and appropriate activity multipliers.\n\nBased on the user's profile data, calculate and return JSON with:\n- calories: { bmr, tdee, target, deficit_or_surplus, explanation }\n- macros: { protein: {grams, calories, percentage}, carbs: {...}, fats: {...} }\n- meal_breakdown: { meals_per_day, per_meal: {calories, protein, carbs, fats}, pre_workout, post_workout }\n- food_suggestions: { protein_sources, carb_sources, fat_sources, meal_ideas }\n- weekly_tips: [array of 3 tips]\n- adjustments: { if_not_losing, if_too_fast, plateau_breaker }",
+    "prompt_template": "Calculate personalized macros for this user:\n\n{{collected_data}}",
+    "render_instructions": "Create a visually appealing macro calculator results page with these sections:\n\n1. HEADER: User's name with 'Your Personalized Macro Plan' title\n2. CALORIE CARD: Large centered display showing target calories with green gradient (#10b981 to #059669). Below show BMR and TDEE in smaller white boxes\n3. MACRO BREAKDOWN: Three colorful cards - Protein (red #ef4444), Carbs (amber #f59e0b), Fats (blue #3b82f6). Each shows grams prominently and percentage\n4. VISUAL BAR: Horizontal bar showing macro split with the three colors\n5. PER MEAL: Grid showing calories/protein/carbs/fats per meal\n6. MEAL TIMING: Pre-workout and post-workout tips in highlighted boxes\n7. FOOD SUGGESTIONS: Three columns for protein/carb/fat sources\n8. WEEKLY TIPS: Numbered list with nice styling\n9. ADJUSTMENTS: 'Not seeing results?', 'Losing too fast?', 'Hit a plateau?' with advice in colored left-bordered boxes\n\nUse modern sans-serif font, rounded corners, subtle shadows, good spacing.",
+    "ai_config": {
+      "model": "gpt-4o",
+      "temperature": 0.5,
+      "max_tokens": 4096
+    }
+  },
+  "voice_config": {
+    "voice": "sage",
+    "model": "gpt-4o-realtime-preview-2024-12-17",
+    "silence_duration_ms": 600
+  },
+  "author_id": "3b0239d0-f6d3-4834-8314-f28e98a1c414",
+  "author_name": "Garrison Fox",
+  "token_cost": 750,
+  "is_active": true,
+  "is_public": true
+}

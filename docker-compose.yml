@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  core:
+    build:
+      context: ./packages/core
+      dockerfile: Dockerfile
+    ports:
+      - "${CORE_PORT:-3015}:${CORE_PORT:-3015}"
+    environment:
+      - PORT=${CORE_PORT:-3015}
+      - MONGODB_URL=mongodb://mongodb:27017/interworky
+      - JWT_SECRET=${JWT_SECRET}
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_BASE_URL=${AI_BASE_URL:-https://api.openai.com/v1}
+      - AI_MODEL=${AI_MODEL:-gpt-4o}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-console}
+      - SMS_PROVIDER=${SMS_PROVIDER:-console}
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER:-local}
+      - STORAGE_LOCAL_PATH=/app/uploads
+      - DASHBOARD_URL=http://dashboard:${DASHBOARD_PORT:-31531}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+  ws-assistant:
+    build:
+      context: ./packages/ws-assistant
+      dockerfile: Dockerfile
+    ports:
+      - "${WS_PORT:-33355}:${WS_PORT:-33355}"
+    environment:
+      - PORT=${WS_PORT:-33355}
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_BASE_URL=${AI_BASE_URL:-https://api.openai.com/v1}
+      - AI_MODEL=${AI_MODEL:-gpt-4o}
+      - MONGODB_URL=mongodb://mongodb:27017/interworky
+      - CORE_API_URL=http://core:${CORE_PORT:-3015}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  dashboard:
+    build:
+      context: ./packages/dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "${DASHBOARD_PORT:-31531}:${DASHBOARD_PORT:-31531}"
+    environment:
+      - PORT=${DASHBOARD_PORT:-31531}
+      - NEXT_PUBLIC_API_URL=http://core:${CORE_PORT:-3015}
+      - NEXT_PUBLIC_WS_URL=ws://ws-assistant:${WS_PORT:-33355}
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      - core
+
+volumes:
+  mongo-data:
+  uploads:
