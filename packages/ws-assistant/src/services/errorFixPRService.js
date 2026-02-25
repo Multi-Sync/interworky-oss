@@ -559,6 +559,8 @@ async function formatCode(content, filePath, options = {}) {
     const { projectConfig = {}, indentOptions = {} } = options;
 
     // Merge: project config takes precedence, then detected indentation, then defaults
+    // Parser is always forced to the file-based value (strip it from projectConfig)
+    const { parser: _ignoredParser, ...safeProjectConfig } = projectConfig;
     const prettierOptions = {
       parser,
       // Defaults
@@ -573,9 +575,7 @@ async function formatCode(content, filePath, options = {}) {
       // Override with detected indentation
       ...indentOptions,
       // Override with project config (highest priority)
-      ...projectConfig,
-      // Parser must always be set based on file
-      parser,
+      ...safeProjectConfig,
     };
 
     console.log(`[ErrorFixPR] Formatting ${filePath} with options:`, {

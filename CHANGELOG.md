@@ -2,6 +2,9 @@
 
 ## 2026-02-25 — Landing Page Redesign & Public Launch
 
+### Created
+- `eslint.config.js` — Root ESLint v9 flat config with Node/browser/Jest globals, JSX support, and per-package overrides
+
 ### Updated
 - `site/index.html` — Complete redesign with custom "Luminous Depth" aesthetic (Syne + Outfit fonts, animated gradient orbs, glass morphism cards, scroll-triggered reveals)
 - `site/style.css` — New standalone stylesheet with CSS custom properties, responsive design, and refined animations

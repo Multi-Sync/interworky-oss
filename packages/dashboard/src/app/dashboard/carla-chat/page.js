@@ -237,7 +237,7 @@ const CarlaChatPage = () => {
     };
 
     initializeChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [isInitialized, organizationId, session?.id]);
 
   // Handle auto-send from URL parameters (separate effect)
@@ -333,7 +333,7 @@ const CarlaChatPage = () => {
           });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [searchParams, isInitialized, currentConversationId, messages]);
 
   const checkGithubStatus = async () => {
