@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-02-25 — Landing Page Redesign & Public Launch
+
+### Updated
+- `site/index.html` — Complete redesign with custom "Luminous Depth" aesthetic (Syne + Outfit fonts, animated gradient orbs, glass morphism cards, scroll-triggered reveals)
+- `site/style.css` — New standalone stylesheet with CSS custom properties, responsive design, and refined animations
+- `site/script.js` — Intersection Observer scroll reveals, nav scroll effects, mobile menu toggle
+- `packages/core/src/config/cloud-storage.json` — Replaced hardcoded GCP credentials with placeholder template
+- `packages/core/src/routers/notifications.router.js` — Moved Slack webhook URL to env var
+- `packages/assistant/src/utils/api/sendReportApi.js` — Moved Slack webhook URL to env var
+
+### Actions
+- Created public repo at github.com/Multi-Sync/interworky-oss
+- Enabled GitHub Pages with Actions deployment
+- Configured custom domain (interworky.com)
+- Scrubbed secrets from git history (GCP key, Slack webhooks, OpenAI key)
+
 ## 2026-02-24 — Testing & GitHub Pages
 
 ### Created
